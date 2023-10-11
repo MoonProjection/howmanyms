@@ -1,0 +1,27 @@
+from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+# Area of Mississippi in km²
+area_mississippi = 125443
+
+@app.route('/calculate', methods=['GET'])
+def calculate():
+    country = request.args.get('country')
+    
+    # Fetch country data from REST API
+    response = requests.get(f"https://restcountries.com/v3.1/name/{country}")
+    
+    if response.status_code == 200:
+        country_data = response.json()[0]
+        area_country = country_data['area']
+        
+        # Calculate how many Mississippi's fit into the country
+        result = area_country / area_mississippi
+        return jsonify({'result': result})
+    else:
+        return jsonify({'error': 'Country not found'}), 404
+
+if __name__ == '__main__':
+    app.run()
